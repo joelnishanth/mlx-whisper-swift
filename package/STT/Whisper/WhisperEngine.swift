@@ -141,7 +141,7 @@ public final class WhisperEngine: STTEngine {
     temperature: Float = 0.0,
     timestamps: TimestampGranularity = .segment,
     hallucinationSilenceThreshold: Float? = nil,
-    segmentCallback: ((_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
+    segmentCallback: (@Sendable (_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
   ) async throws -> TranscriptionResult {
     guard await isLoaded, let whisperSTT = await whisperSTT else {
       throw STTError.modelNotLoaded

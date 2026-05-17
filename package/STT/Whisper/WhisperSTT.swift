@@ -135,7 +135,7 @@ actor WhisperSTT {
     logprobThreshold: Float? = -1.0,
     compressionRatioThreshold: Float? = 2.4,
     hallucinationSilenceThreshold: Float? = nil,
-    segmentCallback: ((_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
+    segmentCallback: (@Sendable (_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
   ) -> TranscriptionResult {
     let transcribeStartTime = CFAbsoluteTimeGetCurrent()
 
