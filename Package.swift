@@ -13,7 +13,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/joelnishanth/mlx-swift-lm.git", branch: "feature/turboquant"),
     .package(url: "https://github.com/joelnishanth/mlx-swift.git", branch: "feature/turboquant"),
-    .package(url: "https://github.com/DePasqualeOrg/swift-tokenizers-mlx", branch: "main", traits: ["Swift"]),
+    .package(url: "https://github.com/DePasqualeOrg/swift-tokenizers-mlx", branch: "main"),
     .package(url: "https://github.com/DePasqualeOrg/swift-hf-api-mlx", branch: "main"),
     .package(url: "https://github.com/DePasqualeOrg/swift-tiktoken", branch: "main"),
   ],
