@@ -190,6 +190,7 @@ class WhisperModel: Module {
   static func load(
     modelSize: WhisperModelSize,
     quantization: WhisperQuantization = .q4,
+    customModelID: String? = nil,
     from downloader: any Downloader,
     progressHandler: @escaping @Sendable (Progress) -> Void = { _ in }
   ) async throws -> WhisperModel {
@@ -200,7 +201,7 @@ class WhisperModel: Module {
       )
     }
 
-    let repoId = modelSize.repoId(quantization: quantization)
+    let repoId = customModelID ?? modelSize.repoId(quantization: quantization)
     Log.model.info("Loading Whisper from \(repoId)...")
 
     // Download model files

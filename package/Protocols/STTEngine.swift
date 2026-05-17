@@ -80,9 +80,10 @@ public enum STT {
   /// - Returns: Configured WhisperEngine instance
   public static func whisper(
     model: WhisperModelSize = .base,
-    quantization: WhisperQuantization = .q4
+    quantization: WhisperQuantization = .q4,
+    customModelID: String? = nil
   ) -> WhisperEngine {
-    WhisperEngine(modelSize: model, quantization: quantization)
+    WhisperEngine(modelSize: model, quantization: quantization, customModelID: customModelID)
   }
 
   /// Fun-ASR: LLM-based multilingual speech recognition

@@ -29,6 +29,10 @@ public final class WhisperEngine: STTEngine {
   /// Quantization level
   public let quantization: WhisperQuantization
 
+  /// Optional override for the HuggingFace repo ID used for downloading.
+  /// When set, bypasses the default `mlx-community/*` mapping.
+  public let customModelID: String?
+
   // MARK: - Private Properties
 
   @ObservationIgnored private var whisperSTT: WhisperSTT?
@@ -39,12 +43,14 @@ public final class WhisperEngine: STTEngine {
   public init(
     modelSize: WhisperModelSize = .base,
     quantization: WhisperQuantization = .q4,
+    customModelID: String? = nil,
     from downloader: any Downloader = HubBridge.default
   ) {
     self.modelSize = modelSize
     self.quantization = quantization
+    self.customModelID = customModelID
     self.downloader = downloader
-    Log.tts.debug("WhisperEngine initialized with model: \(modelSize.rawValue), quantization: \(quantization.rawValue)")
+    Log.tts.debug("WhisperEngine initialized with model: \(modelSize.rawValue), quantization: \(quantization.rawValue), customModelID: \(customModelID ?? "none")")
   }
 
   // MARK: - STTEngine Protocol Methods
@@ -57,9 +63,10 @@ public final class WhisperEngine: STTEngine {
 
     let modelSize = modelSize
     let quantization = quantization
-    Log.model.info("Loading Whisper \(modelSize.rawValue) (\(quantization.rawValue)) model...")
+    let effectiveRepoId = customModelID ?? modelSize.repoId(quantization: quantization)
+    Log.model.info("Loading Whisper \(modelSize.rawValue) (\(quantization.rawValue)) from \(effectiveRepoId)...")
 
-    if let cachedDir = Self.resolveHFCacheDirectory(modelSize: modelSize, quantization: quantization) {
+    if let cachedDir = Self.resolveHFCacheDirectory(repoId: effectiveRepoId) {
       Log.model.info("Loading Whisper from local cache: \(cachedDir.path)")
       whisperSTT = try await WhisperSTT.load(from: cachedDir, quantization: quantization)
       isLoaded = true
@@ -70,6 +77,7 @@ public final class WhisperEngine: STTEngine {
     whisperSTT = try await WhisperSTT.load(
       modelSize: modelSize,
       quantization: quantization,
+      customModelID: customModelID,
       from: downloader,
       progressHandler: progressHandler ?? { _ in }
     )
@@ -80,11 +88,7 @@ public final class WhisperEngine: STTEngine {
 
   /// Check if the model files are already cached in the HuggingFace hub cache directory.
   /// Returns the snapshot directory URL if all required files are present, nil otherwise.
-  private static func resolveHFCacheDirectory(
-    modelSize: WhisperModelSize,
-    quantization: WhisperQuantization
-  ) -> URL? {
-    let repoId = modelSize.repoId(quantization: quantization)
+  private static func resolveHFCacheDirectory(repoId: String) -> URL? {
     let folderName = "models--\(repoId.replacingOccurrences(of: "/", with: "--"))"
     let hfCache = FileManager.default.homeDirectoryForCurrentUser
       .appending(path: ".cache/huggingface/hub")

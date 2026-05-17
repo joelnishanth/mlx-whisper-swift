@@ -46,12 +46,14 @@ actor WhisperSTT {
   static func load(
     modelSize: WhisperModelSize,
     quantization: WhisperQuantization = .q4,
+    customModelID: String? = nil,
     from downloader: any Downloader,
     progressHandler: @escaping @Sendable (Progress) -> Void = { _ in }
   ) async throws -> WhisperSTT {
     let model = try await WhisperModel.load(
       modelSize: modelSize,
       quantization: quantization,
+      customModelID: customModelID,
       from: downloader,
       progressHandler: progressHandler
     )
