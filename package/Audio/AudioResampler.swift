@@ -2,7 +2,6 @@
 
 @preconcurrency import AVFoundation
 import MLX
-import Synchronization
 
 /// High-quality audio resampling using AVAudioConverter with anti-aliasing.
 public enum AudioResampler {
@@ -63,13 +62,14 @@ public enum AudioResampler {
     }
 
     var error: NSError?
-    let inputConsumed = Atomic<Bool>(false)
+    nonisolated(unsafe) var inputConsumed = false
 
     let status = converter.convert(to: outputBuffer, error: &error) { _, outStatus in
-      if inputConsumed.exchange(true, ordering: .relaxed) {
+      if inputConsumed {
         outStatus.pointee = .noDataNow
         return nil
       }
+      inputConsumed = true
       outStatus.pointee = .haveData
       return inputBuffer
     }

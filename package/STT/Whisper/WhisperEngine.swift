@@ -7,7 +7,6 @@ import AVFoundation
 import Foundation
 import MLX
 import MLXLMCommon
-import MLXLMHFAPI
 
 /// Whisper STT engine - multilingual speech recognition
 ///
@@ -40,7 +39,7 @@ public final class WhisperEngine: STTEngine {
   public init(
     modelSize: WhisperModelSize = .base,
     quantization: WhisperQuantization = .q4,
-    from downloader: any Downloader = HubClient.default
+    from downloader: any Downloader = HubBridge.default
   ) {
     self.modelSize = modelSize
     self.quantization = quantization

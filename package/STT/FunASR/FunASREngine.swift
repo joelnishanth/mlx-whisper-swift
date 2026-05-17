@@ -7,8 +7,6 @@ import AVFoundation
 import Foundation
 import MLX
 import MLXLMCommon
-import MLXLMHFAPI
-import MLXLMTokenizers
 
 /// Fun-ASR STT engine - LLM-based multilingual speech recognition
 ///
@@ -39,8 +37,8 @@ public final class FunASREngine: STTEngine {
 
   public init(
     variant: FunASRModelVariant = .nano4bit,
-    from downloader: any Downloader = HubClient.default,
-    using tokenizerLoader: any TokenizerLoader = TokenizersLoader()
+    from downloader: any Downloader = HubBridge.default,
+    using tokenizerLoader: any TokenizerLoader = HFTokenizerLoader()
   ) {
     self.variant = variant
     self.downloader = downloader
@@ -51,8 +49,8 @@ public final class FunASREngine: STTEngine {
   public init(
     modelType: FunASRModelType = .nano,
     quantization: FunASRQuantization = .q4,
-    from downloader: any Downloader = HubClient.default,
-    using tokenizerLoader: any TokenizerLoader = TokenizersLoader()
+    from downloader: any Downloader = HubBridge.default,
+    using tokenizerLoader: any TokenizerLoader = HFTokenizerLoader()
   ) {
     variant = FunASRModelVariant(modelType: modelType, quantization: quantization)
     self.downloader = downloader

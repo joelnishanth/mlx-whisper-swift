@@ -108,27 +108,7 @@ public extension TTSEngine {
 /// try await engine.say("Hello", voice: .dan)  // typed voice enum
 /// ```
 ///
-/// For Kokoro, import MLXAudioKokoro and use `KokoroEngine()` directly.
-@MainActor
-public enum TTS {
-  /// Orpheus: 8 voices, emotional expressions
-  public static func orpheus() -> OrpheusEngine { OrpheusEngine() }
-
-  /// Marvis: streaming, quality levels
-  public static func marvis() -> MarvisEngine { MarvisEngine() }
-
-  /// OuteTTS: custom speaker profiles
-  public static func outetts() -> OuteTTSEngine { OuteTTSEngine() }
-
-  /// Chatterbox: reference audio, emotion control
-  public static func chatterbox() -> ChatterboxEngine { ChatterboxEngine() }
-
-  /// CosyVoice2: voice matching with zero-shot and cross-lingual modes
-  public static func cosyVoice2() -> CosyVoice2Engine { CosyVoice2Engine() }
-
-  /// CosyVoice3: DiT-based voice matching with instruct mode and voice conversion
-  public static func cosyVoice3() -> CosyVoice3Engine { CosyVoice3Engine() }
-}
+/// TTS factory methods are available when TTS engines are included in the build target.
 
 /// Describes how an engine streams audio output
 ///
