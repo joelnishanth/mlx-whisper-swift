@@ -140,7 +140,8 @@ public final class WhisperEngine: STTEngine {
     language: Language? = nil,
     temperature: Float = 0.0,
     timestamps: TimestampGranularity = .segment,
-    hallucinationSilenceThreshold: Float? = nil
+    hallucinationSilenceThreshold: Float? = nil,
+    segmentCallback: ((_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
   ) async throws -> TranscriptionResult {
     guard await isLoaded, let whisperSTT = await whisperSTT else {
       throw STTError.modelNotLoaded
@@ -167,7 +168,8 @@ public final class WhisperEngine: STTEngine {
       task: .transcribe,
       temperature: temperature,
       timestamps: timestamps,
-      hallucinationSilenceThreshold: effectiveHallucinationThreshold
+      hallucinationSilenceThreshold: effectiveHallucinationThreshold,
+      segmentCallback: segmentCallback
     )
 
     await MainActor.run { transcriptionTime = result.processingTime }

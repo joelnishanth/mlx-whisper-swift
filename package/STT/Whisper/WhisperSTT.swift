@@ -134,7 +134,8 @@ actor WhisperSTT {
     noSpeechThreshold: Float? = 0.6,
     logprobThreshold: Float? = -1.0,
     compressionRatioThreshold: Float? = 2.4,
-    hallucinationSilenceThreshold: Float? = nil
+    hallucinationSilenceThreshold: Float? = nil,
+    segmentCallback: ((_ segments: [TranscriptionSegment], _ progress: Float) -> Void)? = nil
   ) -> TranscriptionResult {
     let transcribeStartTime = CFAbsoluteTimeGetCurrent()
 
@@ -600,6 +601,11 @@ actor WhisperSTT {
       allSegments.append(contentsOf: currentSegments)
       for segment in currentSegments {
         allTokens.append(contentsOf: segment.tokens)
+      }
+
+      if !currentSegments.isEmpty {
+        let progress = min(1.0, Float(seek) / Float(max(1, contentFrames)))
+        segmentCallback?(currentSegments, progress)
       }
 
       // Reset prompt if temperature was high (use actual decode temperature, not parameter)
