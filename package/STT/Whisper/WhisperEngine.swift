@@ -59,6 +59,14 @@ public final class WhisperEngine: STTEngine {
     let quantization = quantization
     Log.model.info("Loading Whisper \(modelSize.rawValue) (\(quantization.rawValue)) model...")
 
+    if let cachedDir = Self.resolveHFCacheDirectory(modelSize: modelSize, quantization: quantization) {
+      Log.model.info("Loading Whisper from local cache: \(cachedDir.path)")
+      whisperSTT = try await WhisperSTT.load(from: cachedDir, quantization: quantization)
+      isLoaded = true
+      Log.model.info("Whisper model loaded from cache successfully")
+      return
+    }
+
     whisperSTT = try await WhisperSTT.load(
       modelSize: modelSize,
       quantization: quantization,
@@ -68,6 +76,34 @@ public final class WhisperEngine: STTEngine {
 
     isLoaded = true
     Log.model.info("Whisper model loaded successfully")
+  }
+
+  /// Check if the model files are already cached in the HuggingFace hub cache directory.
+  /// Returns the snapshot directory URL if all required files are present, nil otherwise.
+  private static func resolveHFCacheDirectory(
+    modelSize: WhisperModelSize,
+    quantization: WhisperQuantization
+  ) -> URL? {
+    let repoId = modelSize.repoId(quantization: quantization)
+    let folderName = "models--\(repoId.replacingOccurrences(of: "/", with: "--"))"
+    let hfCache = FileManager.default.homeDirectoryForCurrentUser
+      .appending(path: ".cache/huggingface/hub")
+      .appending(path: folderName)
+      .appending(path: "snapshots")
+
+    guard let snapshots = try? FileManager.default.contentsOfDirectory(
+      at: hfCache, includingPropertiesForKeys: nil
+    ) else { return nil }
+
+    let requiredFiles = ["model.safetensors", "config.json"]
+
+    for snapshot in snapshots {
+      let allPresent = requiredFiles.allSatisfy { file in
+        FileManager.default.fileExists(atPath: snapshot.appending(path: file).path)
+      }
+      if allPresent { return snapshot }
+    }
+    return nil
   }
 
   public func stop() async {
