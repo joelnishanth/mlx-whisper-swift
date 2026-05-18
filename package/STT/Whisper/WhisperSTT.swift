@@ -196,8 +196,13 @@ actor WhisperSTT {
 
       // Build prompt from previous tokens (if conditioning enabled)
       // Use tokens since last prompt reset (matches Python: all_tokens[prompt_reset_since:])
-      let promptTokens = conditionOnPreviousText ? Array(allTokens[promptResetSince...]) : []
-      let prompt = promptTokens
+      // Truncate to half the context window to leave room for generated tokens
+      // (matches Python whisper: initial_prompt_tokens[-max_prompt_length:])
+      let maxPromptLength = model.dims.n_text_ctx / 2 - 1
+      let rawPromptTokens = conditionOnPreviousText ? Array(allTokens[promptResetSince...]) : []
+      let prompt = rawPromptTokens.count > maxPromptLength
+        ? Array(rawPromptTokens.suffix(maxPromptLength))
+        : rawPromptTokens
 
       // Temperature fallback loop (matches Python's decode_with_fallback)
       // Try increasing temperatures when output is too repetitive (high compression ratio)
